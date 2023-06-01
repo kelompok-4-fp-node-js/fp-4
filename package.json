@@ -4,12 +4,13 @@
   "private": true,
   "scripts": {
     "start": "node ./bin/www",
-    "test": "cross-env NODE_ENV=test npx jest --detectOpenHandles --forceExi",
-    "db:create:test": "npx sequelize db:create",
-    "db:migrate:test": "npx sequelize db:migrate"
+    "test": "cross-env NODE_ENV=test npx jest --detectOpenHandles --forceExit",
+    "db:create:test": "cross-env NODE_ENV=test npx sequelize db:create",
+    "db:migrate:test": "cross-env NODE_ENV=test gratenpx s  equelize db:migrate"
   },
   "dependencies": {
     "bcrypt": "^5.1.0",
+    "cookie-parser": "^1.4.6",
     "cross-env": "^7.0.3",
     "debug": "~2.6.9",
     "dotenv": "^16.0.3",
