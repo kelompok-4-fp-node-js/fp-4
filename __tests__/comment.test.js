@@ -63,7 +63,7 @@ describe("POST /comments/", () => {
         done();
       });
   });
-  it("POST comments response 404", (done) => {
+  it("POST comments failed minus token", (done) => {
     request(app)
       .post("/comments/")
       .send({
@@ -76,11 +76,34 @@ describe("POST /comments/", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body);
+        console.log(res.body, "failed minus token");
         expect(res.body).toHaveProperty("status");
         expect(res.body.status).toEqual(404);
         expect(res.body).toHaveProperty("message");
+        expect(typeof res.body.message).toBe("string");
         expect(res.body.message).toEqual("User not found");
+        done();
+      });
+  });
+  it("POST comments failed invalid PhotoId", (done) => {
+    request(app)
+      .post("/comments/")
+      .send({
+        comment: "good photo",
+        PhotoId: 1,
+      })
+      .set({ token: accessToken })
+      .expect(404)
+      .end((err, res) => {
+        if (err) {
+          done(err);
+        }
+        console.log(res.body, "failed invalid PhotoId");
+        expect(res.body).toHaveProperty("message");
+        expect(typeof res.body.message).toBe("string");
+        expect(res.body.message).toEqual("Data with PhotoId 1 not found");
+        expect(res.body.message).toContain("1");
+        expect(res.body.message).toHaveLength(29);
         done();
       });
   });
@@ -165,6 +188,7 @@ describe("GET /comments/", () => {
         expect(res.body).toHaveProperty("status");
         expect(res.body.status).toEqual(404);
         expect(res.body).toHaveProperty("message");
+        expect(typeof res.body.message).toBe("string");
         expect(res.body.message).toEqual("User not found");
         done();
       });
@@ -193,6 +217,15 @@ describe("PUT /comments/:commentId", () => {
         age: "10",
         phone_number: "0879",
       });
+      unauthorUserCreate = await user.create({
+        email: "user2@gmail.com",
+        full_name: "user 2",
+        username: "user2860",
+        password: "user2123",
+        profile_image_url: "https://example.com/user2860.jpg",
+        age: "10",
+        phone_number: "0879",
+      });
       commentCreate = await comment.create({
         UserId: userCreate.id,
         PhotoId: photoCreate.id,
@@ -203,6 +236,12 @@ describe("PUT /comments/:commentId", () => {
         username: userCreate.username,
         email: userCreate.email,
         password: userCreate.password,
+      });
+      unauthorAccessToken = generateToken({
+        id: unauthorUserCreate.id,
+        username: unauthorUserCreate.username,
+        email: unauthorUserCreate.email,
+        password: unauthorUserCreate.password,
       });
       console.log(accessToken, "token put comment");
     } catch (error) {
@@ -232,7 +271,7 @@ describe("PUT /comments/:commentId", () => {
         done();
       });
   });
-  it("PUT comments response 404", (done) => {
+  it("PUT comments response failed invalid token", (done) => {
     request(app)
       .put("/comments/" + commentCreate.id)
       .send({
@@ -249,6 +288,50 @@ describe("PUT /comments/:commentId", () => {
         expect(res.body.status).toEqual(404);
         expect(res.body).toHaveProperty("message");
         expect(res.body.message).toEqual("User not found");
+        done();
+      });
+  });
+  it("PUT comments response failed invalid id params", (done) => {
+    request(app)
+      .put("/comments/" + 1)
+      .send({
+        comment: "good photo",
+      })
+      .set({ token: accessToken })
+      .expect(404)
+      .end((err, res) => {
+        if (err) {
+          done(err);
+        }
+        console.log(res.body, "put comment failed invalid id params");
+        expect(res.body).toHaveProperty("message");
+        expect(typeof res.body.message).toBe("string");
+        expect(res.body.message).toEqual("data with id 1 not found");
+        expect(res.body.message).toContain("1");
+        expect(res.body.message).toHaveLength(24);
+        done();
+      });
+  });
+  // todo: failed authorizaation masih gagal
+  it("PUT comments response failed unautorized token", (done) => {
+    request(app)
+      .put("/comments/" + commentCreate.id)
+      .send({
+        comment: "good photo edit",
+      })
+      .set({ token: unauthorAccessToken })
+      .expect(401)
+      .end((err, res) => {
+        if (err) {
+          done(err);
+        }
+        console.log(unauthorAccessToken);
+        console.log(res.body, "put comment failed unautorized token");
+        expect(res.body).toHaveProperty("message");
+        expect(typeof res.body.message).toBe("string");
+        expect(res.body.message).toEqual("You're prohibited to access this data");
+        expect(res.body.message).toContain("prohibited");
+        expect(res.body.message).toHaveLength(37);
         done();
       });
   });
@@ -275,6 +358,15 @@ describe("DELETE /comments/:commentId", () => {
         age: "10",
         phone_number: "0879",
       });
+      unauthorUserCreate = await user.create({
+        email: "user2@gmail.com",
+        full_name: "user 2",
+        username: "user2860",
+        password: "user2123",
+        profile_image_url: "https://example.com/user2860.jpg",
+        age: "10",
+        phone_number: "0879",
+      });
       commentCreate = await comment.create({
         UserId: userCreate.id,
         PhotoId: photoCreate.id,
@@ -286,11 +378,73 @@ describe("DELETE /comments/:commentId", () => {
         email: userCreate.email,
         password: userCreate.password,
       });
+      unauthorAccessToken = generateToken({
+        id: unauthorUserCreate.id,
+        username: unauthorUserCreate.username,
+        email: unauthorUserCreate.email,
+        password: unauthorUserCreate.password,
+      });
       console.log(accessToken, "token delete comment");
     } catch (error) {
       console.log(error);
     }
   });
+  it("DELETE comments response failed invalid token", (done) => {
+    request(app)
+      .delete("/comments/" + commentCreate.id)
+      .set({ token: null })
+      .expect(404)
+      .end((err, res) => {
+        if (err) {
+          done(err);
+        }
+        console.log(res.body, "delete comment failed invalid token");
+        expect(res.body).toHaveProperty("status");
+        expect(res.body.status).toEqual(404);
+        expect(res.body).toHaveProperty("message");
+        expect(typeof res.body.message).toBe("string");
+        expect(res.body.message).toEqual("User not found");
+        done();
+      });
+  });
+  it("DELETE comments response failed invalid id params", (done) => {
+    request(app)
+      .delete("/comments/" + 1)
+      .set({ token: accessToken })
+      .expect(404)
+      .end((err, res) => {
+        if (err) {
+          done(err);
+        }
+        console.log(res.body, "delete comment failed invalid id params");
+        expect(res.body).toHaveProperty("message");
+        expect(typeof res.body.message).toBe("string");
+        expect(res.body.message).toEqual("data with id 1 not found");
+        expect(res.body.message).toContain("1");
+        expect(res.body.message).toHaveLength(24);
+        done();
+      });
+  });
+  // todo: failed authorizaation masih gagal
+  it("DELETE comments response failed unauthorized token", (done) => {
+    request(app)
+      .delete("/comments/" + commentCreate.id)
+      .set({ token: unauthorAccessToken })
+      .expect(401)
+      .end((err, res) => {
+        if (err) {
+          done(err);
+        }
+        console.log(res.body, "delete comment failed unauthorized token");
+        // expect(res.body).toHaveProperty("status");
+        // expect(res.body.status).toEqual(404);
+        // expect(res.body).toHaveProperty("message");
+        // expect(typeof res.body.message).toBe("string");
+        // expect(res.body.message).toEqual("User not found");
+        done();
+      });
+  });
+
   it("DELETE comments response 200", (done) => {
     request(app)
       .delete("/comments/" + commentCreate.id)
@@ -303,23 +457,6 @@ describe("DELETE /comments/:commentId", () => {
         console.log(res.body, "delete comment 200");
         expect(res.body).toHaveProperty("message");
         expect(res.body.message).toEqual("Your comment has been successfully deleted");
-        done();
-      });
-  });
-  it("DELETE comments response 404", (done) => {
-    request(app)
-      .delete("/comments/" + commentCreate.id)
-      .set({ token: null })
-      .expect(404)
-      .end((err, res) => {
-        if (err) {
-          done(err);
-        }
-        console.log(res.body, "delete comment 404");
-        expect(res.body).toHaveProperty("status");
-        expect(res.body.status).toEqual(404);
-        expect(res.body).toHaveProperty("message");
-        expect(res.body.message).toEqual("User not found");
         done();
       });
   });
