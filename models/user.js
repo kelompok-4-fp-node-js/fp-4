@@ -89,7 +89,7 @@
         }
       },
       phone_number:{
-        type: DataTypes.INTEGER,
+        type: DataTypes.STRING,
         allowNull: false,
         validate: {
           isInt: {

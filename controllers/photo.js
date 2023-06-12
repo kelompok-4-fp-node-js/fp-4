@@ -43,6 +43,11 @@ module.exports = class {
         try {
             const photoData = await photo.findOne({where:{id: req.params.id}})
 
+            if (!photoData) {
+                res.status(404).json({message: 'Photo not found'})
+                return
+            }
+
             if(req.userLogin.id !== photoData.dataValues.UserId){
                 res.status(401).json({message: 'This not your photo'})
                 return
@@ -60,6 +65,11 @@ module.exports = class {
     static async delete(req, res){
         try {
             const findPhoto = await photo.findOne({where:{id: req.params.id}})
+          
+            if (!findPhoto) {
+                res.status(404).json({message: 'Photo not found'})
+                return
+            }
 
             if(req.userLogin.id !== findPhoto.dataValues.UserId){
                 res.status(401).json({message: 'This not your photo'})
