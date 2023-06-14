@@ -33,6 +33,11 @@ module.exports = class {
         try {
             const sosmedData = await SocialMedia.findOne({where:{id: req.params.id}})
 
+            if (!sosmedData) {
+                res.status(404).json({message: 'Social Media not found'})
+                return
+            }
+
             if(req.userLogin.id !== sosmedData.dataValues.UserId){
                 res.status(401).json({message: 'This not your social media'})
                 return
@@ -51,6 +56,12 @@ module.exports = class {
     static async delete(req, res){
         try {
             const findSosmed = await SocialMedia.findOne({where:{id: req.params.id}})
+
+            if (!sosmedData) {
+                res.status(404).json({message: 'Social Media not found'})
+                return
+            }
+
 
             if(req.userLogin.id !== findSosmed.dataValues.UserId){
                 res.status(401).json({message: 'This not your social media'})
