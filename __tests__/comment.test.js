@@ -457,6 +457,7 @@ describe("DELETE /comments/:commentId", () => {
         console.log(res.body, "delete comment 200");
         expect(res.body).toHaveProperty("message");
         expect(res.body.message).toEqual("Your comment has been successfully deleted");
+        expect(typeof res.body.message).toBe("string");
         done();
       });
   });
