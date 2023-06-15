@@ -5,7 +5,6 @@ const { generateToken } = require("../helpers/jwt");
 const { comment, user, photo } = require("../models");
 
 let accessToken;
-
 let commentCreate;
 let photoCreate;
 
@@ -52,7 +51,6 @@ describe("POST /comments/", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body);
         expect(res.body).toHaveProperty("comment");
         expect(res.body.comment).toHaveProperty("id");
         expect(res.body.comment).toHaveProperty("UserId");
@@ -76,7 +74,6 @@ describe("POST /comments/", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body, "failed minus token");
         expect(res.body).toHaveProperty("status");
         expect(res.body.status).toEqual(404);
         expect(res.body).toHaveProperty("message");
@@ -98,7 +95,6 @@ describe("POST /comments/", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body, "failed invalid PhotoId");
         expect(res.body).toHaveProperty("message");
         expect(typeof res.body.message).toBe("string");
         expect(res.body.message).toEqual("Data with PhotoId 1 not found");
@@ -148,7 +144,6 @@ describe("GET /comments/", () => {
         email: userCreate.email,
         password: userCreate.password,
       });
-      console.log(accessToken, "token comment get");
     } catch (error) {
       console.log(error);
     }
@@ -162,7 +157,6 @@ describe("GET /comments/", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body, "get resp");
         expect(res.body).toHaveProperty("comments");
         expect(res.body.comments[0]).toHaveProperty("id");
         expect(res.body.comments[0]).toHaveProperty("UserId");
@@ -184,7 +178,6 @@ describe("GET /comments/", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body, "get response 404");
         expect(res.body).toHaveProperty("status");
         expect(res.body.status).toEqual(404);
         expect(res.body).toHaveProperty("message");
@@ -243,7 +236,6 @@ describe("PUT /comments/:commentId", () => {
         email: unauthorUserCreate.email,
         password: unauthorUserCreate.password,
       });
-      console.log(accessToken, "token put comment");
     } catch (error) {
       console.log(error);
     }
@@ -260,7 +252,6 @@ describe("PUT /comments/:commentId", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body, "put comment 200");
         expect(res.body).toHaveProperty("comment");
         expect(res.body.comment).toHaveProperty("id");
         expect(res.body.comment).toHaveProperty("UserId");
@@ -283,11 +274,11 @@ describe("PUT /comments/:commentId", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body, "put comment 404");
         expect(res.body).toHaveProperty("status");
         expect(res.body.status).toEqual(404);
         expect(res.body).toHaveProperty("message");
         expect(res.body.message).toEqual("User not found");
+        expect(typeof res.body.message).toEqual("string");
         done();
       });
   });
@@ -303,7 +294,6 @@ describe("PUT /comments/:commentId", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body, "put comment failed invalid id params");
         expect(res.body).toHaveProperty("message");
         expect(typeof res.body.message).toBe("string");
         expect(res.body.message).toEqual("data with id 1 not found");
@@ -312,7 +302,6 @@ describe("PUT /comments/:commentId", () => {
         done();
       });
   });
-  // todo: failed authorizaation masih gagal
   it("PUT comments response failed unautorized token", (done) => {
     request(app)
       .put("/comments/" + commentCreate.id)
@@ -325,8 +314,6 @@ describe("PUT /comments/:commentId", () => {
         if (err) {
           done(err);
         }
-        console.log(unauthorAccessToken);
-        console.log(res.body, "put comment failed unautorized token");
         expect(res.body).toHaveProperty("message");
         expect(typeof res.body.message).toBe("string");
         expect(res.body.message).toEqual("You're prohibited to access this data");
@@ -384,7 +371,6 @@ describe("DELETE /comments/:commentId", () => {
         email: unauthorUserCreate.email,
         password: unauthorUserCreate.password,
       });
-      console.log(accessToken, "token delete comment");
     } catch (error) {
       console.log(error);
     }
@@ -398,7 +384,6 @@ describe("DELETE /comments/:commentId", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body, "delete comment failed invalid token");
         expect(res.body).toHaveProperty("status");
         expect(res.body.status).toEqual(404);
         expect(res.body).toHaveProperty("message");
@@ -416,7 +401,6 @@ describe("DELETE /comments/:commentId", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body, "delete comment failed invalid id params");
         expect(res.body).toHaveProperty("message");
         expect(typeof res.body.message).toBe("string");
         expect(res.body.message).toEqual("data with id 1 not found");
@@ -425,7 +409,6 @@ describe("DELETE /comments/:commentId", () => {
         done();
       });
   });
-  // todo: failed authorizaation masih gagal
   it("DELETE comments response failed unauthorized token", (done) => {
     request(app)
       .delete("/comments/" + commentCreate.id)
@@ -435,12 +418,11 @@ describe("DELETE /comments/:commentId", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body, "delete comment failed unauthorized token");
-        // expect(res.body).toHaveProperty("status");
-        // expect(res.body.status).toEqual(404);
-        // expect(res.body).toHaveProperty("message");
-        // expect(typeof res.body.message).toBe("string");
-        // expect(res.body.message).toEqual("User not found");
+        expect(res.body).toHaveProperty("message");
+        expect(typeof res.body.message).toBe("string");
+        expect(res.body.message).toEqual("You're prohibited to access this data");
+        expect(res.body.message).toContain("prohibited");
+        expect(res.body.message).toHaveLength(37);
         done();
       });
   });
@@ -454,7 +436,6 @@ describe("DELETE /comments/:commentId", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body, "delete comment 200");
         expect(res.body).toHaveProperty("message");
         expect(res.body.message).toEqual("Your comment has been successfully deleted");
         expect(typeof res.body.message).toBe("string");

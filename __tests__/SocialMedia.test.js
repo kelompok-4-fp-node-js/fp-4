@@ -2,7 +2,7 @@ const request = require("supertest");
 const app = require("../app");
 
 const { generateToken } = require("../helpers/jwt");
-const { comment, user, photo, SocialMedia } = require("../models");
+const { user, SocialMedia } = require("../models");
 
 describe("POST /socialmedias/", () => {
   beforeAll(async () => {
@@ -36,7 +36,6 @@ describe("POST /socialmedias/", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body, "POST SocialMedia response 201");
         expect(res.body).toHaveProperty("Social_Media");
         expect(res.body.Social_Media).toHaveProperty("id");
         expect(res.body.Social_Media).toHaveProperty("name");
@@ -57,7 +56,6 @@ describe("POST /socialmedias/", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body, "POST SocialMedia failed minus token");
         expect(res.body).toHaveProperty("status");
         expect(res.body.status).toEqual(404);
         expect(res.body).toHaveProperty("message");
@@ -76,7 +74,6 @@ describe("POST /socialmedias/", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body, "POST SocialMedia failed invalid input");
         expect(res.body).toHaveProperty("name");
         expect(res.body).toHaveProperty("errors");
         expect(res.body.errors[0]).toHaveProperty("message");
@@ -133,7 +130,6 @@ describe("GET /socialmedias/", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body, "GET SocialMedia response 200");
         expect(res.body).toHaveProperty("Social_Medias");
         expect(res.body.Social_Medias[0]).toHaveProperty("id");
         expect(res.body.Social_Medias[0]).toHaveProperty("name");
@@ -153,7 +149,6 @@ describe("GET /socialmedias/", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body, "POST SocialMedia failed minus token");
         expect(res.body).toHaveProperty("status");
         expect(res.body.status).toEqual(404);
         expect(res.body).toHaveProperty("message");
@@ -225,7 +220,6 @@ describe("PUT /socialmedias/:socialMediaId", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body, "PUT SocialMedia response 200");
         expect(res.body).toHaveProperty("Social_Media");
         expect(res.body.Social_Media).toHaveProperty("id");
         expect(res.body.Social_Media).toHaveProperty("name");
@@ -245,7 +239,6 @@ describe("PUT /socialmedias/:socialMediaId", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body, "PUT SocialMedia failed minus token");
         expect(res.body).toHaveProperty("status");
         expect(res.body.status).toEqual(404);
         expect(res.body).toHaveProperty("message");
@@ -264,7 +257,6 @@ describe("PUT /socialmedias/:socialMediaId", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body, "PUT SocialMedia failed invalid input");
         expect(res.body).toHaveProperty("name");
         expect(res.body).toHaveProperty("errors");
         expect(res.body.errors[0]).toHaveProperty("message");
@@ -285,7 +277,6 @@ describe("PUT /socialmedias/:socialMediaId", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body, "PUT SocialMedia failed invalid authorization");
         expect(res.body).toHaveProperty("message");
         expect(res.body.message).toEqual("This not your social media");
         expect(typeof res.body.message).toBe("string");
@@ -322,7 +313,6 @@ describe("DELETE /socialmedias/:socialMediaId", () => {
         social_media_url: "https://facebook.com/kharis860",
         UserId: userCreate.id,
       });
-      console.log(socialMediaCreate);
       accessToken = generateToken({
         id: userCreate.id,
         username: userCreate.username,
@@ -359,7 +349,6 @@ describe("DELETE /socialmedias/:socialMediaId", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body, "DELETE SocialMedia failed invalid id params");
         expect(res.body).toHaveProperty("message");
         expect(res.body.message).toEqual("data with id 1 not found");
         expect(typeof res.body.message).toBe("string");
@@ -377,7 +366,6 @@ describe("DELETE /socialmedias/:socialMediaId", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body, "DELETE SocialMedia failed minus token");
         expect(res.body).toHaveProperty("status");
         expect(res.body.status).toEqual(404);
         expect(res.body).toHaveProperty("message");
@@ -397,7 +385,6 @@ describe("DELETE /socialmedias/:socialMediaId", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body, "DELETE SocialMedia failed invalid authorization");
         expect(res.body).toHaveProperty("message");
         expect(res.body.message).toEqual("This not your social media");
         expect(typeof res.body.message).toBe("string");
@@ -415,7 +402,6 @@ describe("DELETE /socialmedias/:socialMediaId", () => {
         if (err) {
           done(err);
         }
-        console.log(res.body, "DELETE SocialMedia response 200");
         expect(res.body).toHaveProperty("message");
         expect(res.body.message).toEqual("Your social media has been successfully deleted");
         expect(typeof res.body.message).toBe("string");
